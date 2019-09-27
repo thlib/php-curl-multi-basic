@@ -81,6 +81,27 @@ class CurlMulti
     }
 
     /**
+     * Read completed curl handles
+     * @param callable $callback
+     */
+    private function read(callable $callback)
+    {
+        $mh = $this->init();
+
+        // msg: The CURLMSG_DONE constant. Other return values are currently not available.
+        // result: One of the CURLE_* constants. If everything is OK, the CURLE_OK will be the result.
+        // handle: Resource of type curl indicates the handle which it concerns.
+        while ($read = curl_multi_info_read($mh, $msgs_in_queue)) {
+            $ch = $read['handle'];
+
+            $callback($ch, $read['result']);
+
+            //close the handle TODO: this should be a setting that decides to close it or not
+            curl_multi_remove_handle($mh, $ch);
+        }
+    }
+
+    /**
      * Add a curl handle to be executed in parallel
      * @param resource $ch
      */
@@ -113,17 +134,7 @@ class CurlMulti
             // One less is running, meaning one has finished
             if($running < $prevRunning){
                 //print (microtime(true) - $time).": curl_multi_info_read".PHP_EOL;
-
-                // msg: The CURLMSG_DONE constant. Other return values are currently not available.
-                // result: One of the CURLE_* constants. If everything is OK, the CURLE_OK will be the result.
-                // handle: Resource of type curl indicates the handle which it concerns.
-                while ($read = curl_multi_info_read($mh, $msgs_in_queue)) {
-                    $ch = $read['handle'];
-                    $callback($ch, $read['result']);
-
-                    //close the handle TODO: this should be a setting that decides to close it or not
-                    curl_multi_remove_handle($mh, $ch);
-                }
+                $this->read($callback);
             }
 
             // Still running? keep waiting...
