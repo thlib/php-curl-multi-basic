@@ -1,4 +1,4 @@
-# php-curl-multi-basic
+# php curl multi basic example
 Basic implementation of PHP curl multi
 
 There are many implementations of curl multi, but the majority suffer from high CPU usage, inefficient memory management and run after each request has completed.
