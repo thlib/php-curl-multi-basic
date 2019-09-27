@@ -1,7 +1,7 @@
 # php curl multi basic example
 Basic implementation of PHP curl multi
 
-There are many implementations of curl multi, but the majority suffer from high CPU usage, inefficient memory management and run after each request has completed.
+There are many implementations of curl multi, but the majority suffer from high CPU usage, inefficient memory management and run only after each request has finished instead of immediately.
 
 Here is an example of how to avoid all of those issues without overloading it with functionality.
 
