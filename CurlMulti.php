@@ -97,40 +97,23 @@ class CurlMulti
         $running = 0;
         $count = 0;
         do {
-            $time = microtime(true);
+            //$time = microtime(true);
 
             // $running contains the number of currently running requests
             $status = $this->exec($mh, $running);
             $count++;
 
-            print (microtime(true) - $time).": curl_multi_exec status=$status running $running".PHP_EOL;
+            //print (microtime(true) - $time).": curl_multi_exec status=$status running $running".PHP_EOL;
 
             // One less is running, meaning one has finished
             if($running < $prevRunning){
-                print (microtime(true) - $time).": curl_multi_info_read".PHP_EOL;
+                //print (microtime(true) - $time).": curl_multi_info_read".PHP_EOL;
 
                 // msg: The CURLMSG_DONE constant. Other return values are currently not available.
                 // result: One of the CURLE_* constants. If everything is OK, the CURLE_OK will be the result.
                 // handle: Resource of type curl indicates the handle which it concerns.
                 while ($read = curl_multi_info_read($mh, $msgs_in_queue)) {
                     $ch = $read['handle'];
-
-                    /*
-                    $info = curl_getinfo($ch);
-                    // This will automatically follow the redirect and still give you control over the previous page
-                    // TODO: max redirect checks and redirect timeouts
-                    if(isset($info['redirect_url']) && trim($info['redirect_url'])!==''){
-
-                        print "running redirect: ".$info['redirect_url'].PHP_EOL;
-                        $ch3 = curl_init();
-                        curl_setopt($ch3, CURLOPT_URL, $info['redirect_url']);
-                        curl_setopt($ch3, CURLOPT_HEADER, 0);
-                        curl_setopt($ch3, CURLOPT_RETURNTRANSFER, 1);
-                        curl_setopt($ch3, CURLOPT_FOLLOWLOCATION, 0);
-                        curl_multi_add_handle($mh,$ch3);
-                    }
-                    */
-
                     $callback($ch, $read['result']);
 
                     //close the handle TODO: this should be a setting that decides to close it or not
