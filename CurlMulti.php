@@ -102,17 +102,17 @@ class CurlMulti
         $running = 0;
         $count = 0;
         do {
-            $time = microtime(true);
+            //$time = microtime(true);
 
             // $running contains the number of currently running requests
             $status = $this->exec($mh, $running, $this->loopTimeout);
             $count++;
 
-            print (microtime(true) - $time).": curl_multi_exec status=$status running $running".PHP_EOL;
+            //print (microtime(true) - $time).": curl_multi_exec status=$status running $running".PHP_EOL;
 
             // One less is running, meaning one has finished
             if($running < $prevRunning){
-                print (microtime(true) - $time).": curl_multi_info_read".PHP_EOL;
+                //print (microtime(true) - $time).": curl_multi_info_read".PHP_EOL;
 
                 // msg: The CURLMSG_DONE constant. Other return values are currently not available.
                 // result: One of the CURLE_* constants. If everything is OK, the CURLE_OK will be the result.
