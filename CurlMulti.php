@@ -4,6 +4,17 @@ class CurlMulti
     private $mh;
 
     /**
+     *
+     */
+    public function __destruct()
+    {
+        if(isset($this->mh)){
+            curl_multi_close($this->mh);
+            $this->mh = null;
+        }
+    }
+
+    /**
      * @return resource curl multi resource
      */
     private function init()
@@ -137,6 +148,7 @@ class CurlMulti
         } while ($running > 0 && $status == CURLM_OK);
 
         curl_multi_close($mh);
+        $this->mh = null;
 
         return $count;
     }
