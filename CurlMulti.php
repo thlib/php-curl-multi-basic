@@ -37,15 +37,6 @@ class CurlMulti
     }
 
     /**
-     * @return resource curl multi resource
-     */
-    private function init()
-    {
-        $this->mh = $this->mh ? $this->mh : curl_multi_init();
-        return $this->mh;
-    }
-
-    /**
      * Fetch information from curl
      * @param resource $mh curl multi resource
      * @param int $still_running number of running curl handles
@@ -126,7 +117,7 @@ class CurlMulti
      */
     public function add($ch)
     {
-        curl_multi_add_handle($this->init(), $ch);
+        curl_multi_add_handle($this->mh, $ch);
     }
 
     /**
