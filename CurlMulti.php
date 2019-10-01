@@ -1,13 +1,22 @@
 <?php
+
+/**
+ * Class CurlMulti
+ */
 class CurlMulti
 {
+    /** @var resource  */
     private $mh;
 
+    /** @var int  */
     public $loopWaitTime = 1000;
+
+    /** @var int  */
     public $loopTimeout = 1000000;
 
     /**
-     *
+     * CurlMulti constructor.
+     * @param array $options
      */
     public function __construct($options = [])
     {
@@ -17,7 +26,7 @@ class CurlMulti
             curl_multi_setopt($this->mh, $k, $v);
         }
     }
-    
+
     /**
      *
      */
