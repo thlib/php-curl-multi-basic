@@ -33,20 +33,25 @@ foreach($handles as $opts) {
     $CurlMulti->add($ch);
 }
 
-$CurlMulti->run(function($ch, $status){
+$status = $CurlMulti->run(function($ch, $status){
     $info = curl_getinfo($ch);
 
-    if($status !== CURLE_OK){
+    if ($status !== CURLE_OK) {
         // handle the error somehow
-        print "Error: ".$info['url'].PHP_EOL;
+        print "Curl handle error: ".curl_strerror($statusCode)." for ".$info['url'].PHP_EOL;
+		return;
     }
-
-    if($status === CURLE_OK){
-        print_r($info);
-        $body = curl_multi_getcontent($ch);
-        print $body;
-    }
-
+    
+    print_r($info);
+    $body = curl_multi_getcontent($ch);
+    print $body;
+    return;
+    
 });
+
+if ($status !== CURLM_OK) {
+	print "Curl multi handle error: ".curl_multi_strerror($statusCode)." for ".$info['url'].PHP_EOL;
+}
+
 
 ```
