@@ -13,18 +13,6 @@ $handles = [
         CURLOPT_URL=>"http://example.com/",
         CURLOPT_HEADER=>false,
         CURLOPT_FOLLOWLOCATION=>false,
-		CURLOPT_WRITEFUNCTION=>function($ch, $body)
-		{
-			print $body;
-			return strlen($body);
-		}
-    ],
-	 [
-$handles = [
-    [
-        CURLOPT_URL=>"http://example.com/",
-        CURLOPT_HEADER=>false,
-        CURLOPT_FOLLOWLOCATION=>false,
         CURLOPT_WRITEFUNCTION=>function($ch, $body)
         {
             print $body;
