@@ -10,8 +10,8 @@ require 'CurlMulti.php';
 
 $handles = [
     [
+        // regular url
         CURLOPT_URL=>"http://example.com/",
-        CURLOPT_HEADER=>false,
         CURLOPT_FOLLOWLOCATION=>false,
         CURLOPT_WRITEFUNCTION=>function($ch, $body)
         {
@@ -20,8 +20,8 @@ $handles = [
         }
     ],
      [
+        // invalid url
         CURLOPT_URL=>"httpzzz://example.com/",
-        CURLOPT_HEADER=>false,
         CURLOPT_FOLLOWLOCATION=>false,
         CURLOPT_WRITEFUNCTION=>function($ch, $body)
         {
@@ -30,8 +30,8 @@ $handles = [
         }
     ],
     [
+        // url with a redirect
         CURLOPT_URL=>"http://www.php.net",
-        CURLOPT_HEADER=>false,
         CURLOPT_FOLLOWLOCATION=>false,
         CURLOPT_HEADERFUNCTION=>function($ch, $header)
         {
