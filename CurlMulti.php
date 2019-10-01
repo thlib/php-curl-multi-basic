@@ -113,22 +113,6 @@ class CurlMulti
         while ($read = curl_multi_info_read($mh, $msgs_in_queue)) {
             $ch = $read['handle'];
 
-            /*
-            $info = curl_getinfo($ch);
-            // This will automatically follow the redirect and still give you control over the previous page
-            // TODO: max redirect checks and redirect timeouts
-            if(isset($info['redirect_url']) && trim($info['redirect_url'])!==''){
-
-                print "running redirect: ".$info['redirect_url'].PHP_EOL;
-                $ch3 = curl_init();
-                curl_setopt($ch3, CURLOPT_URL, $info['redirect_url']);
-                curl_setopt($ch3, CURLOPT_HEADER, 0);
-                curl_setopt($ch3, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch3, CURLOPT_FOLLOWLOCATION, 0);
-                curl_multi_add_handle($mh,$ch3);
-            }
-            */
-
             $callback($ch, $read['result']);
 
             //close the handle TODO: this should be a setting that decides to close it or not
