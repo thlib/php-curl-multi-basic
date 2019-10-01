@@ -7,6 +7,22 @@ $handles = [
         CURLOPT_HEADER=>false,
         CURLOPT_RETURNTRANSFER=>true,
         CURLOPT_FOLLOWLOCATION=>false,
+		CURLOPT_WRITEFUNCTION=>function($ch, $body)
+		{
+			print $body;
+			return strlen($body);
+		}
+    ],
+	 [
+        CURLOPT_URL=>"httpzzz://example.com/",
+        CURLOPT_HEADER=>false,
+        CURLOPT_RETURNTRANSFER=>true,
+        CURLOPT_FOLLOWLOCATION=>false,
+		CURLOPT_WRITEFUNCTION=>function($ch, $body)
+		{
+			print $body;
+			return strlen($body);
+		}
     ],
     [
         CURLOPT_URL=>"http://www.php.net",
@@ -28,10 +44,17 @@ $handles = [
             //$headers[strtolower(trim($header[0]))][] = trim($header[1]);
 
             return strlen($header);
-        }
+        },
+		CURLOPT_WRITEFUNCTION=>function($ch, $body)
+		{
+			print $body;
+			return strlen($body);
+		}
     ]
 ];
-    
+
+
+
 //create the multiple cURL handle
 $CurlMulti = new CurlMulti();
 
@@ -46,23 +69,24 @@ foreach($handles as $opts) {
     $CurlMulti->add($ch);
 }
 
-$count = $CurlMulti->run(function($ch, $status){
+$statusCode = $CurlMulti->run(function($ch, $statusCode) {
     $info = curl_getinfo($ch);
 
-    if($status !== CURLE_OK){
+    if ($statusCode !== CURLE_OK) {
         // handle the error somehow
-        print "Error: ".$info['url'].PHP_EOL;
+        print "Curl handle error: ".curl_strerror($statusCode)." for ".$info['url'].PHP_EOL;
+		return;
     }
 
-    if($status === CURLE_OK){
-        print_r($info);
-        $body = curl_multi_getcontent($ch);
-        print $body;
-    }
+	//print_r($info);
+	//$body = curl_multi_getcontent($ch);
+	//print $body;
 
 });
+if ($statusCode !== CURLM_OK) {
+	print "Curl multi handle error: ".curl_multi_strerror($statusCode)." for ".$info['url'].PHP_EOL;
+}
 
-print $count.PHP_EOL;
 	
 	
 	

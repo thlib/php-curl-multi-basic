@@ -9,12 +9,22 @@ class CurlMulti
     /**
      *
      */
+	public function __construct($options = [])
+	{
+		$this->mh = curl_multi_init();
+		
+		foreach ($options as $k => $v) {
+			curl_multi_setopt($this->mh, $k, $v);
+		}
+	}
+	
+    /**
+     *
+     */
     public function __destruct()
     {
-        if(isset($this->mh)){
-            curl_multi_close($this->mh);
-            $this->mh = null;
-        }
+        curl_multi_close($this->mh);
+        $this->mh = null;
     }
 
     /**
@@ -93,6 +103,23 @@ class CurlMulti
         // handle: Resource of type curl indicates the handle which it concerns.
         while ($read = curl_multi_info_read($mh, $msgs_in_queue)) {
             $ch = $read['handle'];
+
+            /*
+            $info = curl_getinfo($ch);
+            // This will automatically follow the redirect and still give you control over the previous page
+            // TODO: max redirect checks and redirect timeouts
+            if(isset($info['redirect_url']) && trim($info['redirect_url'])!==''){
+
+                print "running redirect: ".$info['redirect_url'].PHP_EOL;
+                $ch3 = curl_init();
+                curl_setopt($ch3, CURLOPT_URL, $info['redirect_url']);
+                curl_setopt($ch3, CURLOPT_HEADER, 0);
+                curl_setopt($ch3, CURLOPT_RETURNTRANSFER, 1);
+                curl_setopt($ch3, CURLOPT_FOLLOWLOCATION, 0);
+                curl_multi_add_handle($mh,$ch3);
+            }
+            */
+
             $callback($ch, $read['result']);
 
             //close the handle TODO: this should be a setting that decides to close it or not
@@ -115,39 +142,35 @@ class CurlMulti
      */
     public function run(callable $callback)
     {
-        $mh = $this->init();
-
         //execute the multi handle
         $prevRunning = 0;
         $running = 0;
-        $count = 0;
         do {
             //$time = microtime(true);
 
             // $running contains the number of currently running requests
-            $status = $this->exec($mh, $running, $this->loopTimeout);
-            $count++;
+            $status = $this->exec($this->mh, $running, $this->loopTimeout);
+			if ($status !== CURLM_OK) {
+				return $status;
+			}
 
             //print (microtime(true) - $time).": curl_multi_exec status=$status running $running".PHP_EOL;
 
             // One less is running, meaning one has finished
             if($running < $prevRunning){
                 //print (microtime(true) - $time).": curl_multi_info_read".PHP_EOL;
-                $this->read($mh, $callback);
+                $this->read($this->mh, $callback);
             }
 
             // Still running? keep waiting...
-            if ($running > 0) {
-                $this->wait($mh, $this->loopWaitTime, $this->loopTimeout);
+            if ($running > 0 && $status === CURLM_OK) {
+                $this->wait($this->mh, $this->loopWaitTime, $this->loopTimeout);
             }
 
             $prevRunning = $running;
 
-        } while ($running > 0 && $status == CURLM_OK);
+        } while ($running > 0 && $status === CURLM_OK);
 
-        curl_multi_close($mh);
-        $this->mh = null;
-
-        return $count;
+        return $status;
     }
 }
