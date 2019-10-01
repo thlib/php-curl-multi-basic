@@ -20,14 +20,26 @@ $handles = [
 		}
     ],
 	 [
+$handles = [
+    [
+        CURLOPT_URL=>"http://example.com/",
+        CURLOPT_HEADER=>false,
+        CURLOPT_FOLLOWLOCATION=>false,
+        CURLOPT_WRITEFUNCTION=>function($ch, $body)
+        {
+            print $body;
+            return strlen($body);
+        }
+    ],
+     [
         CURLOPT_URL=>"httpzzz://example.com/",
         CURLOPT_HEADER=>false,
         CURLOPT_FOLLOWLOCATION=>false,
-		CURLOPT_WRITEFUNCTION=>function($ch, $body)
-		{
-			print $body;
-			return strlen($body);
-		}
+        CURLOPT_WRITEFUNCTION=>function($ch, $body)
+        {
+            print $body;
+            return strlen($body);
+        }
     ],
     [
         CURLOPT_URL=>"http://www.php.net",
@@ -49,11 +61,11 @@ $handles = [
 
             return strlen($header);
         },
-		CURLOPT_WRITEFUNCTION=>function($ch, $body)
-		{
-			print $body;
-			return strlen($body);
-		}
+        CURLOPT_WRITEFUNCTION=>function($ch, $body)
+        {
+            print $body;
+            return strlen($body);
+        }
     ]
 ];
 
@@ -79,17 +91,15 @@ $statusCode = $CurlMulti->run(function($ch, $statusCode) {
     if ($statusCode !== CURLE_OK) {
         // handle the error somehow
         print "Curl handle error: ".curl_strerror($statusCode)." for ".$info['url'].PHP_EOL;
-		return;
+        return;
     }
 
-	//print_r($info);
-	//$body = curl_multi_getcontent($ch);
-	//print $body;
+    //print_r($info);
+    //$body = curl_multi_getcontent($ch);
+    //print $body;
 
 });
 if ($statusCode !== CURLM_OK) {
-	print "Curl multi handle error: ".curl_multi_strerror($statusCode)." for ".$info['url'].PHP_EOL;
+    print "Curl multi handle error: ".curl_multi_strerror($statusCode)." for ".$info['url'].PHP_EOL;
 }
-
-
 ```
