@@ -9,15 +9,15 @@ class CurlMulti
     /**
      *
      */
-	public function __construct($options = [])
-	{
-		$this->mh = curl_multi_init();
-		
-		foreach ($options as $k => $v) {
-			curl_multi_setopt($this->mh, $k, $v);
-		}
-	}
-	
+    public function __construct($options = [])
+    {
+        $this->mh = curl_multi_init();
+        
+        foreach ($options as $k => $v) {
+            curl_multi_setopt($this->mh, $k, $v);
+        }
+    }
+    
     /**
      *
      */
@@ -150,9 +150,9 @@ class CurlMulti
 
             // $running contains the number of currently running requests
             $status = $this->exec($this->mh, $running, $this->loopTimeout);
-			if ($status !== CURLM_OK) {
-				return $status;
-			}
+            if ($status !== CURLM_OK) {
+                return $status;
+            }
 
             //print (microtime(true) - $time).": curl_multi_exec status=$status running $running".PHP_EOL;
 
