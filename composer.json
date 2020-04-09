@@ -15,7 +15,7 @@
     },
     "autoload": {
         "psr-4": {
-            "THLib\\CurlMulti\\": "src/"
+            "TH\\CurlMulti\\": "src/"
         }
     }
 }
