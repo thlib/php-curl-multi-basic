@@ -46,7 +46,7 @@ $handles = [
 
 
 //create the multiple cURL handle
-$CurlMulti = new THLib\CurlMulti();
+$CurlMulti = new TH\CurlMulti\CurlMulti();
 
 foreach($handles as $opts) {
     // create cURL resources
