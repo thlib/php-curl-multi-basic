@@ -1,5 +1,6 @@
 {
     "name": "thlib/php-curl-multi-basic",
+    "version": "1.0.1",
     "description": "Basic implementation of PHP curl_multi. Minimal code, easy to configure, better memory management, no double loop, no 100% CPU usage error.",
     "license": "Unlicense",
     "authors": [
