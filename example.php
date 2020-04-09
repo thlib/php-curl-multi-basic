@@ -1,5 +1,5 @@
 <?php
-require 'CurlMulti.php';
+require 'src/CurlMulti.php';
 
 $handles = [
     [
@@ -12,7 +12,7 @@ $handles = [
             return strlen($body);
         }
     ],
-     [
+    [
         CURLOPT_URL=>"httpzzz://example.com/",
         CURLOPT_HEADER=>false,
         CURLOPT_FOLLOWLOCATION=>false,
@@ -33,13 +33,6 @@ $handles = [
         CURLOPT_HEADERFUNCTION=>function($ch, $header)
         {
             print "header from http://www.php.net: ".$header;
-            //$header = explode(':', $header, 2);
-            //if (count($header) < 2){ // ignore invalid headers
-            //    return $len;
-            //}
-
-            //$headers[strtolower(trim($header[0]))][] = trim($header[1]);
-
             return strlen($header);
         },
         CURLOPT_WRITEFUNCTION=>function($ch, $body)
@@ -53,7 +46,7 @@ $handles = [
 
 
 //create the multiple cURL handle
-$CurlMulti = new CurlMulti();
+$CurlMulti = new THLib\CurlMulti();
 
 foreach($handles as $opts) {
     // create cURL resources
@@ -70,14 +63,14 @@ $statusCode = $CurlMulti->run(function($ch, $statusCode) {
     $info = curl_getinfo($ch);
 
     if ($statusCode !== CURLE_OK) {
-        // handle the error somehow
+        // TODO: handle the error
         print "Curl handle error: ".curl_strerror($statusCode)." for ".$info['url'].PHP_EOL;
         return;
     }
 
-    //print_r($info);
-    //$body = curl_multi_getcontent($ch);
-    //print $body;
+    print_r($info);
+    $body = curl_multi_getcontent($ch);
+    echo $body;
 
 });
 if ($statusCode !== CURLM_OK) {

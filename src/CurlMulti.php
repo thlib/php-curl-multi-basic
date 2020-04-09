@@ -29,9 +29,6 @@ class CurlMulti
         }
     }
 
-    /**
-     *
-     */
     public function __destruct()
     {
         curl_multi_close($this->mh);
@@ -132,19 +129,14 @@ class CurlMulti
         $prevRunning = 0;
         $running = 0;
         do {
-            //$time = microtime(true);
-
             // $running contains the number of currently running requests
             $status = $this->exec($this->mh, $running, $this->loopTimeout);
             if ($status !== CURLM_OK) {
                 return $status;
             }
 
-            //print (microtime(true) - $time).": curl_multi_exec status=$status running $running".PHP_EOL;
-
             // One less is running, meaning one has finished
             if($running < $prevRunning){
-                //print (microtime(true) - $time).": curl_multi_info_read".PHP_EOL;
                 $this->read($this->mh, $callback);
             }
 
