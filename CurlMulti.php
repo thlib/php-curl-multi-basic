@@ -1,5 +1,7 @@
 <?php
 
+namespace THLib
+
 /**
  * Class CurlMulti
  */
