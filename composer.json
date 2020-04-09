@@ -1,6 +1,6 @@
 {
     "name": "thlib/php-curl-multi-basic",
-    "description": "Basic implementation of PHP curl multi. Simplify using curl multi with this class. Using curl multi is not intuitive and most of the examples online are wrong. This implementation allows you configure processor usage so that you don't run into 100% CPU usage, and loads content one request at a time to prevent running out of memory when fetching a lot of content.",
+    "description": "Basic implementation of PHP curl_multi. Minimal code, easy to configure, no 100% CPU usage.",
     "license": "Unlicense",
     "authors": [
         {
