@@ -56,23 +56,23 @@ foreach($handles as $opts) {
     curl_setopt_array($ch, $opts);
 
     // add the handle
-    $CurlMulti->add($ch);
+    $CurlMulti->add($ch, function($ch, $statusCode) {
+        $info = curl_getinfo($ch);
+    
+        if ($statusCode !== CURLE_OK) {
+            // TODO: handle the error
+            print "Curl handle error: ".curl_strerror($statusCode)." for ".$info['url'].PHP_EOL;
+            return;
+        }
+    
+        print_r($info);
+        $body = curl_multi_getcontent($ch);
+        echo $body;
+    
+    });
 }
 
-$statusCode = $CurlMulti->run(function($ch, $statusCode) {
-    $info = curl_getinfo($ch);
-
-    if ($statusCode !== CURLE_OK) {
-        // TODO: handle the error
-        print "Curl handle error: ".curl_strerror($statusCode)." for ".$info['url'].PHP_EOL;
-        return;
-    }
-
-    print_r($info);
-    $body = curl_multi_getcontent($ch);
-    echo $body;
-
-});
+$statusCode = $CurlMulti->run();
 if ($statusCode !== CURLM_OK) {
     print "Curl multi handle error: ".curl_multi_strerror($statusCode)." for ".$info['url'].PHP_EOL;
 }

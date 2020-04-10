@@ -7,14 +7,17 @@ namespace TH\CurlMulti;
  */
 class CurlMulti
 {
-    /** @var resource  */
+    /** @var resource */
     private $mh;
 
-    /** @var int  */
-    public $loopWaitTime = 1000;
+    /** @var int */
+    public $loopWaitTime = 100;
 
-    /** @var int  */
+    /** @var int */
     public $loopTimeout = 1000000;
+
+    /** @var array $handles */
+    public $handles = [];
 
     /**
      * CurlMulti constructor.
@@ -23,7 +26,7 @@ class CurlMulti
     public function __construct($options = [])
     {
         $this->mh = curl_multi_init();
-        
+
         foreach ($options as $k => $v) {
             curl_multi_setopt($this->mh, $k, $v);
         }
@@ -38,23 +41,23 @@ class CurlMulti
     /**
      * Fetch information from curl
      * @param resource $mh curl multi resource
-     * @param int $still_running number of running curl handles
+     * @param int $stillRunning number of running curl handles
      * @param int $timeout in microseconds
      * @return int
      */
-    private function exec($mh, &$still_running, $timeout = 1000000)
+    private function exec($mh, &$stillRunning, $timeout = 1000000)
     {
         // In theory curl_multi_exec should never return CURLM_CALL_MULTI_PERFORM (-1) because it has been deprecated
         // In practice it sometimes does
         // So imagine that this just runs curl_multi_exec once and returns a value
         // but most of the time it's CURLM_OK (0)
         do {
-            $state = curl_multi_exec($mh, $still_running);
-    
+            $state = curl_multi_exec($mh, $stillRunning);
+
             // curl_multi_select($mh, $timeout) simply blocks for $timeout seconds
             // while curl_multi_exec() returns CURLM_CALL_MULTI_PERFORM (-1)
             // We add it to prevent CPU 100% usage in case this thing misbehaves and actually does return -1
-        } while ($still_running > 0 && $state === -1 && curl_multi_select($mh, $timeout/1000000));
+        } while ($stillRunning > 0 && $state === -1 && curl_multi_select($mh, $timeout / 1000000));
         return $state;
     }
 
@@ -67,25 +70,24 @@ class CurlMulti
      */
     private function wait($mh, $wait = 1000, $timeout = 1000000)
     {
-        $start_time = microtime(true);
+        $startTime = microtime(true);
 
         // it sleeps until there is some activity on any of the descriptors (curl files)
         // it returns the number of descriptors (curl files that can have activity)
-        $num_descriptors = curl_multi_select($mh, $timeout/1000000);
+        $num_descriptors = curl_multi_select($mh, $timeout / 1000000);
 
         // if the system returns -1, it means that the wait time is unknown, and we have to decide the minimum time to wait
         // but our `$timespan` check below catches this edge case, so this `if` isn't really necessary
-        if($num_descriptors === -1){
+        if ($num_descriptors === -1) {
             usleep($wait);
         }
 
-        $waited = (microtime(true) - $start_time);
+        $waited = (microtime(true) - $startTime);
 
         // This thing runs very fast, up to 1000 times for 2 urls, which wastes a lot of CPU
         // This will reduce the runs so that each interval is separated by at least minTime
-        if($waited < $wait){
+        if ($waited < $wait) {
             usleep($wait - $waited);
-            //print "sleep for ".($umin - $timeDiff).PHP_EOL;
         }
     }
 
@@ -93,29 +95,31 @@ class CurlMulti
      * Read completed curl handles
      *
      * @param resource $mh
-     * @param callable $callback
      */
-    private function read($mh, callable $callback)
+    private function read($mh)
     {
         // msg: The CURLMSG_DONE constant. Other return values are currently not available.
         // result: One of the CURLE_* constants. If everything is OK, the CURLE_OK will be the result.
         // handle: Resource of type curl indicates the handle which it concerns.
-        while ($read = curl_multi_info_read($mh, $msgs_in_queue)) {
+        while ($read = curl_multi_info_read($mh, $msgsInQueue)) {
             $ch = $read['handle'];
 
-            $callback($ch, $read['result']);
+            if (isset($this->handles[(string)$ch]) && is_callable($this->handles[(string)$ch])) {
+                call_user_func($this->handles[(string)$ch], $ch, $read['result']);
+            }
 
-            //close the handle TODO: this should be a setting that decides to close it or not
             curl_multi_remove_handle($mh, $ch);
         }
     }
 
     /**
      * Add a curl handle to be executed in parallel
-     * @param resource $ch
+     * @param $ch
+     * @param callable $callback
      */
-    public function add($ch)
+    public function add($ch, callable $callback = null)
     {
+        $this->handles[(string)$ch] = $callback;
         curl_multi_add_handle($this->mh, $ch);
     }
 
@@ -123,7 +127,7 @@ class CurlMulti
      * Run a loop that acts as a poor mans solution to multi-threading in php
      * @return int
      */
-    public function run(callable $callback)
+    public function run()
     {
         //execute the multi handle
         $prevRunning = 0;
@@ -136,8 +140,8 @@ class CurlMulti
             }
 
             // One less is running, meaning one has finished
-            if($running < $prevRunning){
-                $this->read($this->mh, $callback);
+            if ($running < $prevRunning) {
+                $this->read($this->mh);
             }
 
             // Still running? keep waiting...
@@ -152,3 +156,4 @@ class CurlMulti
         return $status;
     }
 }
+
